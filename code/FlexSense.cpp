@@ -1,16 +1,25 @@
-/* ----------------------------------- Class for ultrasonic sensor -------------------------------------*/
+/* ----------------------------------- Class for flex sensor -------------------------------------*/
 
 #include "FlexSense.h"
 
-uint16_t flexPosRight;
-uint16_t flexPosLeft;
-void flexSense(){
-  flexPosLeft = analogRead(flexPinLeft);
-  flexPosLeft = constrain(flexPosLeft, 750, 840);
+uint16_t FlexSense::getFlexSenseLeft(){
+  uint16_t flexPos = analogRead(flexPinLeft);
+  flexPos = constrain(flexPos, 750, 840);
+  Serial1.println("Flex Sensor Left: " + flexPos);	  //For debugging purposes; DELETE WHEN DONE
+  return flexPos;
+}
 
-  flexPosRight = analogRead(flexPinRight);
-  flexPosRight = constrain(flexPosRight, 750, 840);
+uint16_t FlexSense::getFlexSenseRight(){
+  uint16_t flexPos = analogRead(flexPinRight);
+  flexPos = constrain(flexPos, 750, 840);
+  Serial1.println("Flex Sensor Right: " + flexPos);	  //For debugging purposes; DELETE WHEN DONE
+  return flexPos;
+}
 
-  Serial1.print("Flex Sensor Left:  " + flexPosLeft);
-  Serial1.print("Flex Sensor Right:  " + flexPosRight); 
+uint16_t FlexSense::setFlexSenseRight(){
+	flexRight = getFlexSenseRight();
+}
+
+uint16_t FlexSense::setFlexSenseLeft(){
+	flexLeft = getFlexSenseLeft();
 }
