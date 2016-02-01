@@ -8,6 +8,7 @@ class ColorSense{
 public:
 	void getColor();
 	uint8_t yes();
+	void setUp();
 private:
 	uint8_t inputChar;
 	uint8_t sensorStringComplete;

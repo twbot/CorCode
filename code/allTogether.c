@@ -11,8 +11,10 @@
 #include "GasSense.h"
 #include "FlexSense.h"
 #include "Communication.h"
+#include "InductiveSense.h"
 
 /* ------------ DO NOT INSERT INTO DIGITAL PINS 0, 1, 14, 15, 16, 17 ---------------*/
+/* ------------ DELETE ALL SERIAL.BEGIN STATEMENTS; TOO MUCH MEMORY USAGE (EXCEPTION: BAUD RATE 9600) ----------------*/
 
 /* -- Flex Pins (Analog) --*/
 const uint8_t flexPinLeft = 0;
@@ -21,10 +23,15 @@ const uint8_t flexPinRight = 1;
 /* -- Gas sensor (Analog) --*/
 const uint8_t gasSensor = 2;
 
+/* -- Inductance Sensor (Analog) -- */
+const uint8_t indSensor = 3;
+
 /* -- IMU (Analog) --*/
 const uint8_t SDA = 20;
 const uint8_t SCL = 21;
 
+/* -- ColorSense (Digital) --*/
+const uint8_t colSensor = 9;
 /* -- Ultrasonic (Digital) --*/
 const uint8_t ultraSonicOutput = 8;
 const uint8_t ultraSonicInput = 7;
@@ -61,23 +68,26 @@ uint8_t inPin2 = HIGH;
 
 //Instantiate Objects
 UltraSonicDetect ultrasonic = UltraSonicDetect();
-GasSense gas = GasSense();
+GasSense gasSense = GasSense();
 IMU imu = IMU();
-ColorSense color = ColorSense();
-FlexSense cliffSense = FlexSense();
+ColorSense colorSense = ColorSense();
+FlexSense flexSense = FlexSense();
+InductiveSense induct = InductiveSense();
 
 void setup() {
 
   Serial.begin(38400);    //For debugging purposes; DELETE WHEN DONE
-  Serial1.begin(9600);    //For debugging purposes; DELETE WHEN DONE
+  Serial1.begin(9600);    
   Serial3.begin(38400);   
   Serial.begin(115200);   //For debugging purposes; DELETE WHEN DONE
-  inputstring.reserve(5); //For debugging purposes; DELETE WHEN DONE
 
   Wire.begin();
 
   //Initialize IMU
   imu.init();
+
+  //Color Sensor
+  pinMode(colSensor, INPUT);
 
   // UltraSonic 
   pinMode(ultraSonicOutput, OUTPUT);
@@ -104,14 +114,13 @@ void setup() {
   servoShoulder.attach(9);
   servoElbow.attach(10);
   servoHand.attach(11);
+
+  //Sensor Pin Receive
+  induct.getByte(indSensor);
 }
 
 
 void loop() {
-
-  cliffSense.setFlexPosLeft();
-  cliffSense.setFlexPosRight();
-  color.getColor();
 
   if(color.yes() ){
     stop();
@@ -121,7 +130,7 @@ void loop() {
   for(uint8_t y : arr){
     x = y;
 
-    if (ultrasonic.inches() <= 4 || (flexLeft > 800 && flexRight < 800) || (flexLeft < 800 && flexRight > 800)){
+    if (ultrasonic.barrier() || flexSense.drop() || ){
 
       switch (x) {
 
@@ -131,11 +140,11 @@ void loop() {
         //spin 180
         //detect orientation with IMU
 
-          if (ultrasonic.inches() <= 4 || (flexLeft > 800 && flexRight < 800) || (flexLeft < 800 && flexRight > 800)) {
+          if (ultrasonic.barrier() || flexSense.drop()) {
             //turn left
             //detect orientation with IMU
           }
-          else if(ultrasonic.inches() >= 4 || (flexLeft > 800 && flexRight > 800)){
+          else if (ultrasonic.clear() || flexSense.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
             delay(//Determine size with or IMU
@@ -157,11 +166,11 @@ void loop() {
         // spin 180
         // detect orientation with IMU
 
-          if (ultrasonic <= 4 || (flexLeft > 800 && flexRight < 800) || (flexLeft < 800 && flexRight > 800)) {
+          if (ultrasonic.barrier()|| flexSense.drop();) {
             // turn left
             // detect orientation with IMU
           }
-          else if(ultrasonic >= 4 || (flexLeft > 800 && flexRight > 800)){
+          else if(ultrasonic.clear() || flexSense.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
             delay(// Determine size with IMU
@@ -180,11 +189,11 @@ void loop() {
         default:
         //If robot is not moving or able to move
         //Send alert to phone
-        //Find way back 
+        //Find way back to charging station
         break;
       }
     }
-     else if(ultrasonic.inches() >= 4 || (flexLeft > 800 && flexRight > 800)){
+     else if(ultrasonic.clear() || flexSense.clear()){
           motorDriveIncrement(5);
           //turn right
           //detect orientation with IMU

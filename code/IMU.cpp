@@ -25,16 +25,17 @@ IMU::IMU() {
 }
 
 void IMU::init() {
-  init(IMU_ACCEL_ADDR, IMU_GYRO_DEF_ADDR, false);
+  init(IMU_ACCEL_ADDR, IMU_GYRO_ADDR, false);
 }
 
-void IMU::init(bool fastmode) {
-  init(IMU_ACCEL_ADDR, IMU_GYRO_DEF_ADDR, fastmode);
+void IMU::init(uint8_t fastmode) {
+  init(IMU_ACCEL_ADDR, IMU_GYRO_ADDR, fastmode);
 }
 
-void IMU::init(int acc_addr, int gyro_addr, bool fastmode) {
+void IMU::init(uint16_t accAddr,uint16_t gyroAddr, uint8_t fastmode) {
   delay(5);
   
+  //Remember to test with 2560 when get back
   /*
   // disable internal pullups of the ATMEGA which Wire enable by default
   #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega8__) || defined(__AVR_ATmega328P__)
@@ -50,33 +51,32 @@ void IMU::init(int acc_addr, int gyro_addr, bool fastmode) {
   #endif
   */
 
-  if(fastmode) { // switch to 400KHz I2C - eheheh
+  if(fastmode) { // switch to 400KHz I2C 
     TWBR = ((16000000L / 400000L) - 16) / 2; // see twi_init in Wire/utility/twi.c
-    // TODO: make the above usable also for 8MHz arduinos..
   }
   
 	// initialize Accelerometer
-	accel.init(acc_addr);
+	accel.init(accAddr);
   // initialize Gyroscope
-  gyro.init(gyro_addr);
+  gyro.init(gyroAddr);
   delay(1000);
   // calibrate the Gyroscope
   gyro.zeroCalibrate(128,5);
 }
 
 
-void IMU::getRawValues(int * raw_values) {
-  accel.readAccel(&raw_values[0], &raw_values[1], &raw_values[2]);
-  gyro.readGyroRaw(&raw_values[3], &raw_values[4], &raw_values[5]);
+void IMU::getRawValues(uint16_t* rawValues) {
+  accel.readAccel(&rawValues[0], &rawValues[1], &rawValues[2]);
+  gyro.readGyroRaw(&rawValues[3], &rawValues[4], &rawValues[5]);
 }
 
 
-void IMU::getValues(float * values) {  
-  int accval[3];
-  acc.readAccel(&accval[0], &accval[1], &accval[2]);
-  values[0] = ((float) accval[0]);
-  values[1] = ((float) accval[1]);
-  values[2] = ((float) accval[2]);
+void IMU::getValues(uint32_t* values) {  
+ uint16_t accelVal[3];
+  acc.readAccel(&accelVal[0], &accelVal[1], &accelVal[2]);
+  values[0] = ((uint32_t) accelVal[0]);
+  values[1] = ((uint32_t) accelVal[1]);
+  values[2] = ((uint32_t) accelVal[2]);
   
   gyro.readGyro(&values[3]);
 }
@@ -86,11 +86,11 @@ void IMU::getValues(float * values) {
 // compensation algorithms from Sebastian Madgwick filter which eliminates the need for a reference
 // direction of flux (bx bz) to be predefined and limits the effect of magnetic distortions to yaw
 // axis only.
-void IMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
-  uint64_t recipNorm;
-  uint64_t q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
-  uint64_t halfex = 0.0f, halfey = 0.0f, halfez = 0.0f;
-  uint64_t qa, qb, qc;
+void IMU::AHRSupdate(uint32_t gx, uint32_t gy, uint32_t gz, uint32_t ax, uint32_t ay, uint32_t az) {
+  uint32_t recipNorm;
+  uint32_t q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+  uint32_t halfex = 0.0f, halfey = 0.0f, halfez = 0.0f;
+  uint32_t qa, qb, qc;
 
   // Auxiliary variables to avoid repeated arithmetic
   q0q0 = q0 * q0;
@@ -104,11 +104,11 @@ void IMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, float az,
   q2q3 = q2 * q3;
   q3q3 = q3 * q3;
 
-  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
+  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalization)
   if((ax != 0.0f) && (ay != 0.0f) && (az != 0.0f)) {
-    float halfvx, halfvy, halfvz;
+    uint32_t halfvx, halfvy, halfvz;
     
-    // Normalise accelerometer measurement
+    // Normalize accelerometer measurement
     recipNorm = invSqrt(ax * ax + ay * ay + az * az);
     ax *= recipNorm;
     ay *= recipNorm;
@@ -160,7 +160,7 @@ void IMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, float az,
   q2 += (qa * gy - qb * gz + q3 * gx);
   q3 += (qa * gz + qb * gy - qc * gx);
   
-  // Normalise quaternion
+  // Normalize quaternion
   recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
   q0 *= recipNorm;
   q1 *= recipNorm;
@@ -169,10 +169,11 @@ void IMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, float az,
 }
 
 
-void IMU::getQ(float * q) {
-  float val[9];
+void IMU::getQ(uint32_t* q) {
+  uint32_t val[9];
   getValues(val);
   
+  //DEBUGGING; COMMENT OUT WHEN DONE
   /*
   DEBUG_PRINT(val[3] * M_PI/180);
   DEBUG_PRINT(val[4] * M_PI/180);
@@ -190,8 +191,6 @@ void IMU::getQ(float * q) {
   sampleFreq = 1.0 / ((now - lastUpdate) / 1000000.0);
   lastUpdate = now;
   // gyro values are expressed in deg/sec, the * M_PI/180 will convert it to radians/sec
-  //AHRSupdate(val[3] * M_PI/180, val[4] * M_PI/180, val[5] * M_PI/180, val[0], val[1], val[2], val[6], val[7], val[8]);
-  // use the call below when using a 6DOF IMU
   AHRSupdate(val[3] * M_PI/180, val[4] * M_PI/180, val[5] * M_PI/180, val[0], val[1], val[2], 0, 0, 0);
   q[0] = q0;
   q[1] = q1;
@@ -202,16 +201,16 @@ void IMU::getQ(float * q) {
 // Returns the Euler angles in radians defined with the Aerospace sequence.
 // See Sebastian O.H. Madwick report 
 // "An efficient orientation filter for inertial and intertial/magnetic sensor arrays" Chapter 2 Quaternion representation
-void IMU::getEuler(float * angles) {
-float q[4]; // quaternion
+void IMU::getEuler(uint32_t* angles) {
+  uint32_t q[4]; // quaternion
   getQ(q);
   angles[0] = atan2(2 * q[1] * q[2] - 2 * q[0] * q[3], 2 * q[0]*q[0] + 2 * q[1] * q[1] - 1) * 180/M_PI; // psi
   angles[1] = -asin(2 * q[1] * q[3] + 2 * q[0] * q[2]) * 180/M_PI; // theta
   angles[2] = atan2(2 * q[2] * q[3] - 2 * q[0] * q[1], 2 * q[0] * q[0] + 2 * q[3] * q[3] - 1) * 180/M_PI; // phi
 }
 
-void IMU::getAngles(float * angles) {
-  float a[3]; //Euler
+void IMU::getAngles(uint32_t* angles) {
+  uint32_t a[3]; //Euler
   getEuler(a);
 
   angles[0] = a[0];
@@ -221,14 +220,12 @@ void IMU::getAngles(float * angles) {
   if(angles[0] < 0)angles[0] += 360;
   if(angles[1] < 0)angles[1] += 360;
   if(angles[2] < 0)angles[2] += 360;
-
-
 }
 
 
-void IMU::getYawPitchRoll(float * ypr) {
-  float q[4]; // quaternion
-  float gx, gy, gz; // estimated gravity direction
+void IMU::getYawPitchRoll(uint32_t* ypr) {
+  uint32_t q[4]; // quaternion
+  uint32_t gx, gy, gz; // estimated gravity direction
   getQ(q);
   
   gx = 2 * (q[1]*q[3] - q[0]*q[2]);
@@ -241,16 +238,16 @@ void IMU::getYawPitchRoll(float * ypr) {
 }
 
 
-float invSqrt(float number) {
-  volatile long i;
-  volatile float x, y;
-  volatile const float f = 1.5F;
+uint32_t invSqrt(uint32_t number) {
+  volatile uint64_t i;
+  volatile uint32_t x, y;
+  volatile const uint32_t f = 1.5F;
 
   x = number * 0.5F;
   y = number;
-  i = * ( long * ) &y;
+  i = * ( uint64_t * ) &y;
   i = 0x5f375a86 - ( i >> 1 );
-  y = * ( float * ) &i;
+  y = * ( uint32_t * ) &i;
   y = y * ( f - ( x * y * y ) );
   return y;
 }

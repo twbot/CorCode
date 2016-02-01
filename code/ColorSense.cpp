@@ -1,8 +1,10 @@
 /* ----------------------------------- Class for color sensor -------------------------------------*/
 
-#include "ColorSense.h"
+#include "ColorSense.h"                                               
 
-sensorStringComplete = 0;                                                      
+void ColorSense::getByte(uint8_t b){
+
+}
 
 void ColorSense::serialEvent3(){                                               //if the hardware serial port3 receives a char 
   inputChar = (uint8_t)Serial3.read();                                         //get the char we just received
@@ -13,7 +15,6 @@ void ColorSense::serialEvent3(){                                               /
 }
 
 void ColorSense::getColor() { 
-
   if (sensorStringComplete) {                                                 //when a string from the color sensor has been received in its entirety 
     commaIndex = sensorString.indexOf(',');
     commaIndex2 = sensorString.indexOf(',', commaIndex + 1);
@@ -26,13 +27,15 @@ void ColorSense::getColor() {
 }
 
 void ColorSense::setColor(){
+  getColor();
   r = f.toInt();
   g = s.toInt();
   b = t.toInt();
-  Serial.println("Red: " + f + ", Green: " + s + ", Blue: " + t); //DEBUGGING
+  Serial.println("Red: " + f + ", Green: " + s + ", Blue: " + t);     //DEBUGGING; COMMENT OUT WHEN DONE
 }
 
 uint8_t ColorSense::yes(){
+  setColor();
   if(r == 153 && g == 102 && b == 51){
     Serial.println("Object Detected");  //DELETE WHEN DONE
     return 1;
