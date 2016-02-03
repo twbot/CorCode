@@ -4,7 +4,8 @@
 
 class InductiveSense {
 public:
-
+	uint8_t clear();
+	uint8_t barrier();
 private:
 	uint8_t inductor;
 	uint16_t value;

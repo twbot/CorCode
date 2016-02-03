@@ -3,7 +3,6 @@
 #include <log.h>
 #include <Wire.h>
 
-#include "IMU.h"
 #include "Accel.h"
 #include "Gyro.h"
 #include "ColorSense.h"
@@ -26,7 +25,7 @@ const uint8_t gasSensor = 2;
 /* -- Inductance Sensor (Analog) -- */
 const uint8_t indSensor = 3;
 
-/* -- IMU (Analog) --*/
+/* -- MAG (Analog) --*/
 const uint8_t SDA = 20;
 const uint8_t SCL = 21;
 
@@ -69,10 +68,10 @@ uint8_t inPin2 = HIGH;
 //Instantiate Objects
 UltraSonicDetect ultrasonic = UltraSonicDetect();
 GasSense gasSense = GasSense();
-IMU imu = IMU();
 ColorSense colorSense = ColorSense();
 FlexSense flexSense = FlexSense();
 InductiveSense induct = InductiveSense();
+Magnometer mag = Magnometer();
 
 void setup() {
 
@@ -82,9 +81,8 @@ void setup() {
   Serial.begin(115200);   //For debugging purposes; DELETE WHEN DONE
 
   Wire.begin();
-
-  //Initialize IMU
-  imu.init();
+  //Initialize MAG
+  mag.init();
 
   //Color Sensor
   pinMode(colSensor, INPUT);
@@ -136,22 +134,22 @@ void loop() {
 
         case 1:
         //turn right
-        //detect orientation with IMU
+        //detect orientation with MAG
         //spin 180
-        //detect orientation with IMU
+        //detect orientation with MAG
 
           if (ultrasonic.barrier() || flexSense.drop()) {
             //turn left
-            //detect orientation with IMU
+            //detect orientation with MAG
           }
           else if (ultrasonic.clear() || flexSense.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
-            delay(//Determine size with or IMU
+            delay(//Determine size with or MAG
               );
 
             //turn left
-            //detect orientation with IMU
+            //detect orientation with MAG
             delay(20);
             motorMove(0 ,128, countclkwise);
             motorMove(1, 128, clckwise);
@@ -162,22 +160,22 @@ void loop() {
 
         case -1:
         // turn left
-        // detect orientation with IMU
+        // detect orientation with MAG
         // spin 180
-        // detect orientation with IMU
+        // detect orientation with MAG
 
           if (ultrasonic.barrier()|| flexSense.drop();) {
             // turn left
-            // detect orientation with IMU
+            // detect orientation with MAG
           }
           else if(ultrasonic.clear() || flexSense.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
-            delay(// Determine size with IMU
+            delay(// Determine size with MAG
               );
 
             // turn left
-            // detect orientation with IMU
+            // detect orientation with MAG
             delay(20);
             motorMove(0 ,128, countclkwise);
             motorMove(1, 128, clckwise);
@@ -196,11 +194,12 @@ void loop() {
      else if(ultrasonic.clear() || flexSense.clear()){
           motorDriveIncrement(5);
           //turn right
-          //detect orientation with IMU
+          //detect orientation with MAG
   }
 }   
 
  /* ---- Function for incrementing motor drive ----*/
+/* ----- TRANSFER -----*/
 void motorDriveIncrement(int x) {
 
   motorMove(0, 25, 1);
@@ -227,6 +226,7 @@ void motorDriveIncrement(int x) {
   motorMove(0, 128, 0));
 }
 
+/* ------PUT IN OWN CLASS && CHANGE ------*/
 
 void armControl(){
   for (int i = 0; i < 180; i+20)

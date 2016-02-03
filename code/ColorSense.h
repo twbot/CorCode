@@ -6,9 +6,7 @@
 
 class ColorSense{
 public:
-	void getColor();
 	uint8_t yes();
-	void setUp();
 private:
 	uint8_t inputChar;
 	uint8_t sensorStringComplete;
@@ -16,7 +14,9 @@ private:
 	uint16_t commaIndex, commaIndex2;
 	String f,s,t;
 	String sensorString = ""; 
+	void getColor();
 	void setColor();
+	void serialEvent3();
 };
 
 #endif //ColorSense_h

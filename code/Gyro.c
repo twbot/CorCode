@@ -16,7 +16,6 @@ Gyro::Gyro() {
 }
 
 void Gyro::init(uint32_t address) {
- // Uncomment or change your default gyro initialization
  
  // fast sample rate - divisor = 0 filter = 0 clocksrc = 0, 1, 2, or 3 (raw values)
  init(address, NOSRDIVIDER, RANGE2000, BW256_SR8, PLL_XGYRO_REF, true, true);
