@@ -11,8 +11,8 @@ public:
 	uint8_t barrier();
 	uint8_t clear();
 private:
-	uint16_t inches, duration;
-	uint16_t inches();
+	uint16_t m, duration;
+	uint16_t m();
 };
 
 #endif	// UltraSonicDetect_h

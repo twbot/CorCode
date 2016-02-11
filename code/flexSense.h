@@ -5,12 +5,12 @@
 
 class FlexSense {
 public:
-	uint8_t clear();
 	uint8_t drop();
+	uint8_t clear();
 private:
-	uint8_t flexPinL, flexPinR;
+	//uint8_t flexPinL, flexPinR;
 	uint16_t flexRight, flexLeft;
-	void getBytes(uint8_t b, uint8_t s);
+	//void getBytes(uint8_t b, uint8_t s);
 	uint16_t getFlexPosLeft();
 	uint16_t getFlexPosRight();
 	void setFlexPosLeft();

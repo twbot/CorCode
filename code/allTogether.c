@@ -2,9 +2,10 @@
 #include <stdint.h>
 #include <log.h>
 #include <Wire.h>
+#include <avr/interrupt.h>
 
-#include "Accel.h"
-#include "Gyro.h"
+//#include "Accel.h"
+//#include "Gyro.h"
 #include "ColorSense.h"
 #include "UltraSonicDetect.h"
 #include "GasSense.h"
@@ -14,6 +15,7 @@
 
 /* ------------ DO NOT INSERT INTO DIGITAL PINS 0, 1, 14, 15, 16, 17 ---------------*/
 /* ------------ DELETE ALL SERIAL.BEGIN STATEMENTS; TOO MUCH MEMORY USAGE (EXCEPTION: BAUD RATE 9600) ----------------*/
+/* ------------ INTERRUPT PINS FOR ATMEGA2560; INT0: 2(1), INT1: 3(2), INT2: 21(3), INT3: 22(4), INT4: 19(5), INT5: 18(6) ---------------*/
 
 /* -- Flex Pins (Analog) --*/
 const uint8_t flexPinLeft = 0;
@@ -31,22 +33,29 @@ const uint8_t SCL = 21;
 
 /* -- ColorSense (Digital) --*/
 const uint8_t colSensor = 9;
+
+/* -- Touch Button (Digital) -- */
+const uint8_t button = 10;
+
 /* -- Ultrasonic (Digital) --*/
 const uint8_t ultraSonicOutput = 8;
 const uint8_t ultraSonicInput = 7;
 
 /* -- Motor A (Digital) --*/
 const uint8_t motorASpeed = 5;                                                 //pwm
-const uint8_t AIn1 = 22;                                                        
-const uint8_t AIn2 = 23;
+const uint8_t AIn1 = 23;                                                        
+const uint8_t AIn2 = 24;
 
 /* -- Motor B (Digital) --*/
 const uint8_t motorBSpeed = 6;                                                 //pwm
-const uint8_t BIn1 = 24;                                                        
-const uint8_t BIn2 = 25;
+const uint8_t BIn1 = 25;                                                        
+const uint8_t BIn2 = 26;
 
 /* -- Motor Standby/off (Digital) --*/
-const uint8_t STYBY = 26;
+const uint8_t STYBY = 27;
+
+/* -- LED (Digital) --*/
+const uint8_t led = 28;
 
 /* -- Servo Setup --*/
 Servo servoShoulder;                                                           //servo motor for shoulder of arm
@@ -115,8 +124,20 @@ void setup() {
 
   //Sensor Pin Receive
   induct.getByte(indSensor);
+  flexSense.getBytes();
 }
 
+void ISR::colorDetect(){
+  color.yes();
+  stop();
+}
+
+ISR(INT0_vect){
+  if (flexSense.drop()){
+    //MOVE ROBOT ACCORDING TO 
+  }
+}
+//CREATE INTERRUPT FOR WHEN ROBOT DETECTS OBJECT
 
 void loop() {
 

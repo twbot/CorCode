@@ -24,7 +24,7 @@ IMU::IMU() {
 }
 
 void IMU::init() {
-  init(IMU_ACCEL_ADDR, IMU_GYRO_ADDR, false);
+  init(IMU_ACCEL_ADDR, IMU_GYRO_ADDR, 1);
 }
 
 void IMU::init(uint8_t fastmode) {

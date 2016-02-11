@@ -6,4 +6,4 @@ public:
 	uint16_t gasSensorRead();
 };
 
-#endif
+#endif	//GasSense
