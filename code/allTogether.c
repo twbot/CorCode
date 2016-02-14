@@ -57,6 +57,12 @@ const uint8_t STYBY = 27;
 /* -- LED (Digital) --*/
 const uint8_t led = 28;
 
+/* -- Edge Detect -- */
+const uint8_t iR;
+const uint8_t oR;
+const uint8_t iL;
+const uint8_t oL;
+
 /* -- Servo Setup --*/
 Servo servoShoulder;                                                           //servo motor for shoulder of arm
 Servo servoElbow;                                                              //servo motor for elbow of arm
@@ -134,6 +140,7 @@ void setup() {
   induct.getByte(indSensor);
   flexSense.getBytes();
   ultra.getBytes(objDOutput, objDInput);
+  edge.getBytes( ir, oR, iL, oL);
 }
 
 void ISR::colorDetect(){
@@ -144,6 +151,13 @@ void ISR::colorDetect(){
 ISR(INT0_vect){
   if (edgeDetect.drop()){
     stop();
+  }
+}
+
+ISR(INT1_vect){
+  if(color.yes()){
+    stop();
+    //INSERT ARM CONTROL HERE
   }
 }
 //CREATE INTERRUPT FOR WHEN ROBOT DETECTS OBJECT

@@ -40,9 +40,6 @@ uint8_t FlexSense::drop(){
   else if(flexRight > 800 && flexLeft < 800){
     return 2;
   }
-  else{
-    return 0;
-  }
 }
 uint8_t FlexSense::clear(){
   if(flexRight > 800 && flexLeft > 800){
