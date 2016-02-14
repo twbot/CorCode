@@ -8,5 +8,5 @@ Magnometer::GetAxis(int buffer){
 	x.GetAxis();
 	y.GetAxis();
 	z.GetAxis();
-	
 }
+

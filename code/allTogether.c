@@ -38,8 +38,8 @@ const uint8_t colSensor = 9;
 const uint8_t button = 10;
 
 /* -- Ultrasonic (Digital) --*/
-const uint8_t ultraSonicOutput = 8;
-const uint8_t ultraSonicInput = 7;
+const uint8_t objDOutput = 8;
+const uint8_t objDInput = 7;
 
 /* -- Motor A (Digital) --*/
 const uint8_t motorASpeed = 5;                                                 //pwm
@@ -75,7 +75,7 @@ uint8_t inPin1 =LOW;
 uint8_t inPin2 = HIGH;
 
 //Instantiate Objects
-UltraSonicDetect ultrasonic = UltraSonicDetect();
+UltraSonicDetect ultra = UltraSonicDetect();
 GasSense gasSense = GasSense();
 ColorSense colorSense = ColorSense();
 FlexSense flexSense = FlexSense();
@@ -90,15 +90,23 @@ void setup() {
   Serial.begin(115200);   //For debugging purposes; DELETE WHEN DONE
 
   Wire.begin();
-  //Initialize MAG
+  //Initialize magnometer
   mag.init();
 
   //Color Sensor
   pinMode(colSensor, INPUT);
 
-  // UltraSonic 
-  pinMode(ultraSonicOutput, OUTPUT);
-  pinMode(ultraSonicInput, INPUT);
+  // Object Detect
+  pinMode(objDOutput, OUTPUT);
+  pinMode(objDInput, INPUT);
+
+  //Edge Detect (Right)
+  pinMode(edjDLOutput, OUTPUT);
+  pinMode(edjDLOutput, OUTPUT);
+
+  //Edge Detect (Left)
+  pinMode(edjDROutput, OUTPUT);
+  pinMode(edjDRInput, INPUT);
   
   // Motor A
   pinMode(motorASpeed, OUTPUT);
@@ -125,6 +133,7 @@ void setup() {
   //Sensor Pin Receive
   induct.getByte(indSensor);
   flexSense.getBytes();
+  ultra.getBytes(objDOutput, objDInput);
 }
 
 void ISR::colorDetect(){
@@ -133,8 +142,8 @@ void ISR::colorDetect(){
 }
 
 ISR(INT0_vect){
-  if (flexSense.drop()){
-    //MOVE ROBOT ACCORDING TO 
+  if (edgeDetect.drop()){
+    stop();
   }
 }
 //CREATE INTERRUPT FOR WHEN ROBOT DETECTS OBJECT
@@ -149,7 +158,7 @@ void loop() {
   for(uint8_t y : arr){
     x = y;
 
-    if (ultrasonic.barrier() || flexSense.drop() || ){
+    if (ultra.barrier() || flexSense.drop() || ){
 
       switch (x) {
 
@@ -159,11 +168,11 @@ void loop() {
         //spin 180
         //detect orientation with MAG
 
-          if (ultrasonic.barrier() || flexSense.drop()) {
+          if (ultra.barrier() || flexSense.drop()) {
             //turn left
             //detect orientation with MAG
           }
-          else if (ultrasonic.clear() || flexSense.clear()){
+          else if (ultra.clear() || flexSense.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
             delay(//Determine size with or MAG
@@ -185,11 +194,11 @@ void loop() {
         // spin 180
         // detect orientation with MAG
 
-          if (ultrasonic.barrier()|| flexSense.drop();) {
+          if (ultra.barrier()|| flexSense.drop();) {
             // turn left
             // detect orientation with MAG
           }
-          else if(ultrasonic.clear() || flexSense.clear()){
+          else if(ultra.clear() || flexSense.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
             delay(// Determine size with MAG
@@ -212,7 +221,7 @@ void loop() {
         break;
       }
     }
-     else if(ultrasonic.clear() || flexSense.clear()){
+     else if(ultra.clear() || flexSense.clear()){
           motorDriveIncrement(5);
           //turn right
           //detect orientation with MAG

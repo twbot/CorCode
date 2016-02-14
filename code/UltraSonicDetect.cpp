@@ -1,14 +1,18 @@
 /* ----------------------------------- Class for ultrasonic sensor ------------------------------------- */
 #include "UltraSonicDetect.h"
 
+uint8_t UltraSonicDetect::getBytes(uint8_t b, uint8_t s){
+	ultraOutput = b;
+	ultraInput = s;
+}
 uint16_t UltraSonicDetect::m() {
-	digitalWrite(ultraSonicOutput, LOW);
+	digitalWrite(ultraOutput, LOW);
 	delayMicroseconds(2);
-	digitalWrite(ultraSonicOutput, HIGH);
+	digitalWrite(ultraOutput, HIGH);
 	delayMicroseconds(5);
-	digitalWrite(ultraSonicOutput, LOW);
+	digitalWrite(ultraOutput, LOW);
 
-	duration = pulseIn(ultraSonicInput, HIGH);
+	duration = pulseIn(ultraInput, HIGH);
 	m = msToMeters(duration);
 
 	Serial.print("Meters: ");	//DELETE WHEN DONE

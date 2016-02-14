@@ -7,7 +7,7 @@
 
 class UltraSonicDetect{
 public: 
-	uint8_t ultraSonicInput, ultraSonicOutput;
+	uint8_t ultraInput, ultraOutput;
 	uint8_t barrier();
 	uint8_t clear();
 private:
