@@ -1,4 +1,4 @@
-#ifndef  MotorDrive
+#ifndef	MotorDrive
 #define MotorDrive 
 
 class MotorDrive{
@@ -7,4 +7,4 @@ public:
 	void stop();
 };
 
-#endif
+#endif	//MotorDrive_h

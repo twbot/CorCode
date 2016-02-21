@@ -9,7 +9,7 @@
 #include "ColorSense.h"
 #include "UltraSonicDetect.h"
 #include "GasSense.h"
-#include "FlexSense.h"
+//#include "FlexSense.h"
 #include "Communication.h"
 #include "InductiveSense.h"
 
@@ -18,8 +18,8 @@
 /* ------------ INTERRUPT PINS FOR ATMEGA2560; INT0: 2(1), INT1: 3(2), INT2: 21(3), INT3: 22(4), INT4: 19(5), INT5: 18(6) ---------------*/
 
 /* -- Flex Pins (Analog) --*/
-const uint8_t flexPinLeft = 0;
-const uint8_t flexPinRight = 1;
+//const uint8_t flexPinLeft = 0;
+//const uint8_t flexPinRight = 1;
 
 /* -- Gas sensor (Analog) --*/
 const uint8_t gasSensor = 2;
@@ -84,7 +84,7 @@ uint8_t inPin2 = HIGH;
 UltraSonicDetect ultra = UltraSonicDetect();
 GasSense gasSense = GasSense();
 ColorSense colorSense = ColorSense();
-FlexSense flexSense = FlexSense();
+//FlexSense flexSense = FlexSense();
 InductiveSense induct = InductiveSense();
 Magnometer mag = Magnometer();
 
@@ -96,8 +96,6 @@ void setup() {
   Serial.begin(115200);   //For debugging purposes; DELETE WHEN DONE
 
   Wire.begin();
-  //Initialize magnometer
-  mag.init();
 
   //Color Sensor
   pinMode(colSensor, INPUT);
@@ -136,9 +134,11 @@ void setup() {
   servoElbow.attach(10);
   servoHand.attach(11);
 
+  //Initialize magnometer
+  mag.init();
+
   //Sensor Pin Receive
   induct.getByte(indSensor);
-  flexSense.getBytes();
   ultra.getBytes(objDOutput, objDInput);
   edge.getBytes( ir, oR, iL, oL);
 }
@@ -162,31 +162,30 @@ ISR(INT1_vect){
 }
 //CREATE INTERRUPT FOR WHEN ROBOT DETECTS OBJECT
 
-void loop() {
+while(1){
 
-  if(color.yes() ){
+/*  if(color.yes() ){
     stop();
     armControl();
   }
-
+*/
   for(uint8_t y : arr){
     x = y;
 
-    if (ultra.barrier() || flexSense.drop() || ){
+    if (ultra.barrier() || edge.drop() || ){
 
       switch (x) {
-
         case 1:
         //turn right
         //detect orientation with MAG
         //spin 180
         //detect orientation with MAG
 
-          if (ultra.barrier() || flexSense.drop()) {
+          if (ultra.barrier() || edge.drop()) {
             //turn left
             //detect orientation with MAG
           }
-          else if (ultra.clear() || flexSense.clear()){
+          else if (ultra.clear() || edge.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
             delay(//Determine size with or MAG
@@ -208,11 +207,11 @@ void loop() {
         // spin 180
         // detect orientation with MAG
 
-          if (ultra.barrier()|| flexSense.drop();) {
+          if (ultra.barrier()|| edge.drop();) {
             // turn left
             // detect orientation with MAG
           }
-          else if(ultra.clear() || flexSense.clear()){
+          else if(ultra.clear() || edge.clear()){
             motorMove(0, 128, countclkwise);
             motorMove(1, 128, clckwise);
             delay(// Determine size with MAG
@@ -235,7 +234,7 @@ void loop() {
         break;
       }
     }
-     else if(ultra.clear() || flexSense.clear()){
+     else if(ultra.clear() || edge.clear()){
           motorDriveIncrement(5);
           //turn right
           //detect orientation with MAG

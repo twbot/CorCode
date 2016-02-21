@@ -2,6 +2,7 @@
 #ifndef Magnometer
 #define Magnometer 
 
+#define ADDRESS 0x1E
 #define CONFIG_REG_A 0x00
 #define CONFIG_REG_B 0x01
 #define MOD_REG 0x02
@@ -21,4 +22,4 @@ class Magnometer
 public:
 };
 
-#endif	//Magnometer	
+#endif	//Magnometer_h

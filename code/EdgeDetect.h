@@ -1,8 +1,7 @@
 
 #ifndef EdgeDetect
 #define EdgeDetect 
-class EdgeDetect
-{
+class EdgeDetect{
 	uint8_t outputR, outputL, inputR, inputL;
 	getBytes();
 	getEdgeRight();
@@ -15,4 +14,7 @@ public:
 	drop();
 	clear();
 };
-#endif
+#endif	//EdgeDetect_h
+
+
+//Distance = ((Duration of high level)*(Sonic :340m/s))/2
