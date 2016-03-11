@@ -2,7 +2,7 @@
 #ifndef Magnometer
 #define Magnometer 
 
-#define ADDRESS 0x1E
+#define ADDRESS 0x1E //0011110b, I2C 7bit address of Magnometer
 #define CONFIG_REG_A 0x00
 #define CONFIG_REG_B 0x01
 #define MOD_REG 0x02
